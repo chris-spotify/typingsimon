@@ -14,21 +14,12 @@ class Simon {
         this.animationCounter = 0;
         this.answer = '';
         this.needed = []; // array of answer letters still needed to guess
+        this.firework = null;
     }
 
     update(){
         this.keyboard.update();
         switch(this.state){
-            case simonStates.WIN:
-            case simonStates.PREGAME:
-                // random wave stuff
-                if (this.animationCounter <= 0){
-                    const rand = Math.floor(Math.random() * 25) + 65; // 65-90, A-Z
-                    this.keyboard.startWaveFromKeyCode(rand);
-                    this.animationCounter = 100;
-                }
-                this.animationCounter--;
-                break;
             case simonStates.DEMONSTRATION:
                 if (this.animationCounter <= 0){
                     if (this.needed.length){
@@ -41,6 +32,18 @@ class Simon {
                     }
                 }
                 this.animationCounter--;
+                break;
+            case simonStates.WIN:
+                if (this.firework){
+                    this.firework.update();
+                    if (this.firework.state === 1) {
+                        const key = this._closestKey(this.firework.x, this.firework.y);
+                        this.keyboard.startWaveFromLetter(key.text.toLowerCase());
+                    }
+                    if (this.firework.state === 3) this.firework = null;
+                } else {
+                    this.firework = new Firework(random(0, this.keyWidth*12), this.keyHeight * 5, Math.floor(random(20,35)), random(-20, -10), 0.5);
+                }
                 break;
         };
     }
@@ -64,6 +67,7 @@ class Simon {
                 text(`Your turn! You're looking for the ${this.needed[0]} key.`, Math.floor(this.keyWidth*5.5), this.keyHeight*4);
                 break;
             case simonStates.WIN:
+                if (this.firework) this.firework.draw();
                 textSize(24);
                 text('You did it! Congratulations!!! Press ENTER to try another.', Math.floor(this.keyWidth*5.5), this.keyHeight*4);
                 break;
@@ -114,5 +118,18 @@ class Simon {
                 }
                 break;
         };
+    }
+
+    _closestKey(x,y){
+        let lowest = Infinity;
+        let lowestKey = null;
+        Object.values(this.keyboard.keys).forEach(k => {
+            const dist = Math.abs(k.key.x - x) + Math.abs(k.key.y - y);
+            if (dist < lowest) {
+                lowestKey = k.key;
+                lowest = dist;
+            }
+        });
+        return lowestKey;
     }
 }
