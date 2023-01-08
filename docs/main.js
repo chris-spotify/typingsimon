@@ -14,3 +14,9 @@ function draw() {
 function keyPressed() {
     simon.keyPressed(keyCode);
 }
+
+// touches will fall back to this handler as well
+function mouseReleased() {
+    simon.handleClick(mouseX, mouseY);
+    return false;
+}
