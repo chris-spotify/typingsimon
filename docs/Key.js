@@ -112,4 +112,13 @@ class Key {
         };
         this.frame++;
     }
+
+    isClicked(x,y){
+        return (
+            x >= this.x &&
+            x <= this.x + this.W &&
+            y >= this.y &&
+            y <= this.y + this.H
+        );
+    }
 }
