@@ -15,6 +15,10 @@ class Simon {
         this.answer = '';
         this.needed = []; // array of answer letters still needed to guess
         this.firework = null;
+        this.startX = Math.floor(this.keyWidth * 4);
+        this.startY = Math.floor(this.keyHeight * 6);
+        this.resetX = Math.floor(this.keyWidth * 7);
+        this.resetY = Math.floor(this.keyHeight * 6);
     }
 
     update(){
@@ -50,13 +54,19 @@ class Simon {
 
     draw(){
         this.keyboard.draw();
+        push();
         textSize(48);
         textAlign(CENTER,CENTER);
         text(this.answer, Math.floor(this.keyWidth*5.5), this.keyHeight*4 + 50);
         switch(this.state){
             case simonStates.PREGAME:
                 textSize(24);
-                text('Hey! Start by typing an answer, then press ENTER:', Math.floor(this.keyWidth*5.5), this.keyHeight*4);
+                text('Start by typing an answer, then press ENTER or click START:', Math.floor(this.keyWidth*5.5), this.keyHeight*4);
+                textSize(32);
+                fill(10,160,10);
+                text('START', this.startX, this.startY);
+                fill(220,10,10);
+                text('RESET', this.resetX, this.resetY);
                 break;
             case simonStates.DEMONSTRATION:
                 textSize(24);
@@ -70,8 +80,12 @@ class Simon {
                 if (this.firework) this.firework.draw();
                 textSize(24);
                 text('You did it! Congratulations!!! Press ENTER to try another.', Math.floor(this.keyWidth*5.5), this.keyHeight*4);
+                textSize(32);
+                fill(220,10,10);
+                text('RESET', this.resetX, this.resetY);
                 break;
         };
+        pop();
     }
 
     keyPressed(code){
@@ -88,6 +102,7 @@ class Simon {
                     }
                 } else if (this.keyboard.getKeyFromKeyCode(code)){ // is this a valid key to add?
                     const key = this.keyboard.getKeyFromKeyCode(code);
+                    key.state = 1;
                     this.answer += key.text; // uppercase
                 }
                 break;
@@ -102,6 +117,8 @@ class Simon {
                         if (!this.needed.length){
                             this.animationCounter = 50;
                             this.answer = '';
+                            this.resetX = Math.floor(this.keyWidth*5.5);
+                            this.resetY = this.keyHeight * 5;
                             this.state = simonStates.WIN;
                         }
                     } else {
@@ -114,6 +131,8 @@ class Simon {
                 if (code === 13) { // enter
                     this.answer = '';
                     this.needed = [];
+                    this.resetX = this.keyWidth*7;
+                    this.resetY = this.keyHeight*6;
                     this.state = simonStates.PREGAME;
                 }
                 break;
@@ -131,5 +150,47 @@ class Simon {
             }
         });
         return lowestKey;
+    }
+
+    handleClick(x,y){
+        if (this.state === simonStates.PREGAME){
+            push();
+            textSize(32);
+            // START
+            if (
+                x >= this.startX - textWidth('START')/2 &&
+                x <= this.startX + textWidth('START')/2 &&
+                y >= this.startY - 16 &&
+                y <= this.startY + 16
+            ) {
+                this.keyPressed(13);
+            }
+            pop();
+        }
+        if (this.state === simonStates.PREGAME || this.state === simonStates.WIN){
+            push();
+            textSize(32);
+            // RESET
+            if (
+                x >= this.resetX - textWidth('RESET')/2&&
+                x <= this.resetX + textWidth('RESET')/2 &&
+                y >= this.resetY - 16 &&
+                y <= this.resetY + 16
+            ) {
+                this.answer = '';
+                this.needed = [];
+                this.state = simonStates.PREGAME;
+                this.resetX = this.keyWidth*7;
+                this.resetY = this.keyHeight*6;
+            }
+            pop();
+        }
+        for (const k of Object.values(this.keyboard.keys)){
+            const { key } = k;
+            if (key.isClicked(x,y)){
+                this.keyPressed(key.keyCode);
+                break;
+            }
+        }
     }
 }
