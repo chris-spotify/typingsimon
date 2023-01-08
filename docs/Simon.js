@@ -61,7 +61,7 @@ class Simon {
         switch(this.state){
             case simonStates.PREGAME:
                 textSize(24);
-                text('Start by typing an answer, then press ENTER or click START:', Math.floor(this.keyWidth*5.5), this.keyHeight*4);
+                text('Hey there! Start by typing your answer.', Math.floor(this.keyWidth*5.5), this.keyHeight*4);
                 textSize(32);
                 fill(10,160,10);
                 text('START', this.startX, this.startY);
@@ -79,7 +79,7 @@ class Simon {
             case simonStates.WIN:
                 if (this.firework) this.firework.draw();
                 textSize(24);
-                text('You did it! Congratulations!!! Press ENTER to try another.', Math.floor(this.keyWidth*5.5), this.keyHeight*4);
+                text('You did it! Congratulations!!! Try another one.', Math.floor(this.keyWidth*5.5), this.keyHeight*4);
                 textSize(32);
                 fill(220,10,10);
                 text('RESET', this.resetX, this.resetY);
